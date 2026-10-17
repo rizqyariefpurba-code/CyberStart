@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CyberStart – Belajar Cybersecurity dari Nol</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:#0a0a0c;color:#d4d4d8;font-family:Inter,system-ui,sans-serif;margin:0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.g{color:#10b981}.c{color:#06b6d4}
+.card{background:#101014;border:1px solid #1f2a2a;border-radius:10px}
+.hv{transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.hv:hover{border-color:#10b981;box-shadow:0 0 18px #10b98128}
+.btn{border:1px solid #10b981;color:#10b981;border-radius:8px;padding:.5rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.875rem;transition:background .2s}
+.btn:hover{background:#10b9811f}
+.btn.fill{background:#10b981;color:#0a0a0c;font-weight:700}
+.nav a{display:block;padding:.55rem .9rem;border-radius:8px;white-space:nowrap;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#a1a1aa}
+.nav a:hover{color:#06b6d4}.nav a.on{background:#10b98120;color:#10b981}
+.opt{display:block;width:100%;text-align:left;padding:.7rem .9rem;margin-top:.5rem;border:1px solid #27272a;border-radius:8px;background:#0a0a0c;cursor:pointer}
+.opt:hover:not(:disabled){border-color:#06b6d4}
+.opt.ok{border-color:#10b981;background:#10b98120}.opt.no{border-color:#ef4444;background:#ef444420}
+input.in{width:100%;background:#050507;border:1px solid #27272a;border-radius:8px;padding:.7rem .9rem;color:#10b981;font-family:'JetBrains Mono',monospace;outline:none}
+input.in:focus{border-color:#06b6d4;box-shadow:0 0 0 2px #06b6d433}
+a:focus-visible,button:focus-visible{outline:2px solid #06b6d4;outline-offset:2px}
+@media(min-width:768px){#side{position:fixed;inset:0 auto 0 0;width:15rem;flex-direction:column;border-right:1px solid #1f2a2a;border-bottom:0}#main{margin-left:15rem}}
+.blink{animation:b 1s steps(2) infinite}@keyframes b{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.blink{animation:none}}
+</style>
+</head>
+<body>
+<header id="side" class="flex items-center gap-2 px-3 py-2 md:py-5 md:items-stretch border-b border-[#1f2a2a] bg-[#0a0a0c] sticky top-0 z-20 md:static" style="top:env(safe-area-inset-top,0px)">
+  <div class="mono font-bold g text-lg px-2 shrink-0 md:mb-4">&gt;_ CyberStart</div>
+  <nav class="nav flex md:flex-col gap-1 overflow-x-auto" id="nav"></nav>
+  <div class="hidden md:block mt-auto mono text-xs text-zinc-600 px-2">Hanya untuk edukasi.<br>Jangan uji sistem milik orang lain.</div>
+</header>
+
+<main id="main" class="p-4 md:p-8 max-w-5xl"><div id="app"></div></main>
+
+<script>
+const MODS=[
+{id:'intro',ic:'🛡️',t:'Introduction to Security',lv:'Pemula',d:'Pahami dasar keamanan: segitiga CIA, ancaman, dan kebiasaan aman.',
+ pts:['<b>CIA Triad</b>: Confidentiality (rahasia terjaga), Integrity (data tidak diubah diam-diam), Availability (layanan tetap bisa diakses).','<b>Ancaman</b> = hal yang bisa merugikan (hacker, malware). <b>Kerentanan</b> = celah (password lemah). <b>Risiko</b> = peluang ancaman memanfaatkan celah.','<b>Defense in depth</b>: pakai banyak lapisan (password kuat + 2FA + update rutin + backup).','Kebiasaan dasar: update software, aktifkan 2FA, jangan pakai password yang sama di banyak akun.'],
+ cs:['Kasus nyata: akun e-commerce bocor','Seorang pengguna memakai password yang sama di forum kecil dan marketplace. Saat forum diretas, penyerang mencoba kombinasi email+password itu di marketplace (credential stuffing) dan berhasil masuk. Dengan 2FA, serangan ini gagal.'],
+ q:[['Apa kepanjangan "CIA" dalam CIA Triad?',['Central Intelligence Agency','Confidentiality, Integrity, Availability','Control, Inspect, Alert'],1,'CIA Triad adalah tiga tujuan utama keamanan informasi: kerahasiaan, integritas, ketersediaan.'],
+ ['Cara terbaik mencegah credential stuffing?',['Password unik tiap akun + 2FA','Ganti password tiap hari','Menghapus akun lama saja'],0,'Password unik membuat kebocoran satu situs tidak merembet, 2FA menambah lapisan kedua.'],
+ ['Password lemah termasuk…',['Ancaman','Kerentanan','Backup'],1,'Password lemah adalah celah (kerentanan) yang bisa dimanfaatkan ancaman.']]},
+{id:'web',ic:'🕸️',t:'Web Vulnerabilities',lv:'Dasar',d:'Kenali SQL Injection, XSS, dan cara developer menutup celahnya.',
+ pts:['<b>SQL Injection</b>: input pengguna disisipkan ke query database tanpa disaring, sehingga penyerang bisa membaca atau mengubah data.','<b>XSS (Cross-Site Scripting)</b>: penyerang menyisipkan script ke halaman yang dilihat orang lain, misalnya lewat kolom komentar.','<b>Pencegahan</b>: parameterized query, validasi dan escaping input, Content Security Policy, serta update library.','Contoh pola mencurigakan di input: <code class="mono c">\' OR 1=1 --</code> (percobaan SQLi klasik).'],
+ cs:['Kasus nyata: form login yang jebol','Sebuah situs menyusun query dengan menggabungkan string dari form login. Penyerang memasukkan <code class="mono c">\' OR 1=1 --</code> sebagai username dan bisa masuk sebagai admin tanpa password. Perbaikannya: pakai prepared statement.'],
+ q:[['Pertahanan utama terhadap SQL Injection?',['Menyembunyikan form login','Parameterized query / prepared statement','Memperbesar server'],1,'Prepared statement memisahkan kode query dari data, sehingga input tidak dieksekusi sebagai perintah.'],
+ ['XSS terjadi ketika…',['Script penyerang tampil dan jalan di browser korban','Server kehabisan memori','Password ditebak'],0,'XSS membuat browser korban menjalankan script yang disisipkan penyerang.'],
+ ['Mana yang BUKAN langkah pencegahan?',['Escape output','Content Security Policy','Percaya penuh pada input pengguna'],2,'Input pengguna harus selalu dianggap tidak tepercaya.']]},
+{id:'crypto',ic:'🔐',t:'Cryptography 101',lv:'Dasar',d:'Enkripsi, hashing, dan mengapa HTTPS penting.',
+ pts:['<b>Enkripsi simetris</b>: satu kunci untuk mengunci dan membuka (cepat, contoh AES).','<b>Enkripsi asimetris</b>: pasangan kunci publik dan privat (contoh RSA). Dipakai saat HTTPS membuat koneksi aman.','<b>Hashing</b>: sidik jari satu arah dari data (contoh SHA-256). Tidak bisa "dibuka" kembali, cocok untuk menyimpan password (dengan salt, memakai bcrypt/argon2).','<b>HTTPS</b> melindungi data dari penyadapan di jaringan, misalnya Wi-Fi publik.'],
+ cs:['Kasus nyata: database password bocor','Sebuah situs menyimpan password dalam teks biasa. Setelah database bocor, semua akun langsung terbuka. Situs lain yang menyimpan hash bcrypt + salt membuat penyerang butuh waktu sangat lama untuk menebak tiap password.'],
+ q:[['Fungsi hash bersifat…',['Dua arah','Satu arah','Hanya untuk gambar'],1,'Hash tidak bisa dibalik; kita hanya membandingkan hash dari input dengan hash tersimpan.'],
+ ['Kunci apa yang boleh dibagikan ke publik?',['Kunci privat','Kunci publik','Keduanya'],1,'Kunci privat harus dirahasiakan; kunci publik memang untuk dibagikan.'],
+ ['Cara menyimpan password yang benar?',['Teks biasa','Dienkripsi lalu kuncinya di kode','Hash dengan salt (bcrypt/argon2)'],2,'Hash lambat bersalt mempersulit serangan brute force dan rainbow table.']]},
+{id:'phish',ic:'🎣',t:'Phishing Defense',lv:'Pemula',d:'Kenali tanda-tanda penipuan online sebelum kamu mengklik.',
+ pts:['<b>Phishing</b> adalah penipuan yang menyamar sebagai pihak tepercaya (bank, kurir, kantor) untuk mencuri data atau uang.','<b>Tanda bahaya</b>: mendesak ("akun diblokir 24 jam"), domain mirip tapi salah (paypa1.com), lampiran tak terduga, minta OTP atau password.','<b>Cara aman</b>: jangan klik link dari pesan tak dikenal, buka situs resmi lewat ketikan sendiri, jangan pernah bagikan OTP.','Coba <b>Mini Lab</b> di bawah untuk menganalisis URL mencurigakan.'],
+ cs:['Kasus nyata: SMS "paket tertahan"','Korban menerima SMS berisi link "cek paket" ke domain acak. Halaman palsu meminta data kartu dan kode OTP. Dalam beberapa menit saldo terkuras. Padahal kurir resmi tidak pernah meminta OTP.'],
+ q:[['Pesan bank meminta OTP lewat telepon. Kamu…',['Memberikan agar cepat','Menolak dan menghubungi bank lewat nomor resmi','Membalas dengan password'],1,'OTP bersifat rahasia. Bank resmi tidak pernah memintanya.'],
+ ['Mana domain yang paling mencurigakan?',['bank-mandiri.com','login-mandiri-verifikasi.xyz','mandiri.co.id'],1,'Domain panjang, penuh kata pancingan, dan TLD .xyz adalah ciri umum phishing.'],
+ ['Tanda umum phishing adalah…',['Nada mendesak dan ancaman','Sapaan nama lengkap kamu','Link ke situs resmi yang kamu ketik sendiri'],0,'Penipu menciptakan tekanan waktu agar korban tidak berpikir panjang.']]}
+];
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let P={};try{P=JSON.parse(localStorage.getItem('cs_prog')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('cs_prog',JSON.stringify(P))}catch(e){}};
+const pct=()=>Math.round(MODS.filter(m=>P[m.id]!=null).length/MODS.length*100);
+
+function nav(cur){
+ const items=[['home','🏠 Dashboard'],...MODS.map(m=>[m.id,m.ic+' '+m.t]),['labs','🧪 Mini Lab']];
+ $('#nav').innerHTML=items.map(([k,l])=>`<a class="${k===cur?'on':''}" onclick="go('${k}')">${l}</a>`).join('');
+}
+function go(v){
+ nav(v);window.scrollTo(0,0);
+ if(v==='home')home();else if(v==='labs')labs();else mod(MODS.find(m=>m.id===v));
+}
+function home(){
+ const p=pct();
+ $('#app').innerHTML=`
+ <section class="card p-5 md:p-7 mb-6">
+  <p class="mono g text-sm">user@cyberstart:~$ whoami</p>
+  <h1 class="mono text-2xl md:text-4xl font-bold text-white mt-2">Halo, calon <span class="g">defender</span><span class="blink g">_</span></h1>
+  <p class="mt-3 text-zinc-400 max-w-xl">Belajar keamanan siber dari nol lewat materi singkat, simulasi interaktif, dan kuis. Tidak perlu pengalaman coding.</p>
+  <div class="mt-5"><div class="flex justify-between mono text-xs mb-1"><span class="c">PROGRESS BELAJAR</span><span class="g">${p}%</span></div>
+  <div class="h-3 rounded bg-zinc-900 border border-zinc-800 overflow-hidden"><div class="h-full" style="width:${p}%;background:linear-gradient(90deg,#10b981,#06b6d4);transition:width .6s"></div></div>
+  <p class="text-xs text-zinc-500 mt-1">${MODS.filter(m=>P[m.id]!=null).length} dari ${MODS.length} modul selesai</p></div>
+  <div class="mt-5 flex flex-wrap gap-2"><button class="btn fill" onclick="go('intro')">Mulai belajar</button><button class="btn" onclick="go('labs')">Buka Mini Lab</button></div>
+ </section>
+ <h2 class="mono text-lg text-white mb-3">Modul pembelajaran</h2>
+ <div class="grid sm:grid-cols-2 gap-4">${MODS.map(m=>`
+  <article class="card hv p-5" tabindex="0" onclick="go('${m.id}')" onkeydown="if(event.key==='Enter')go('${m.id}')">
+   <div class="flex justify-between items-start"><span class="text-3xl">${m.ic}</span>
+   <span class="mono text-xs px-2 py-1 rounded ${P[m.id]!=null?'bg-emerald-900/40 g':'bg-zinc-900 text-zinc-400'}">${P[m.id]!=null?'✔ Skor '+P[m.id]+'/3':m.lv}</span></div>
+   <h3 class="mono font-bold text-white mt-3">${m.t}</h3><p class="text-sm text-zinc-400 mt-1">${m.d}</p></article>`).join('')}</div>`;
+}
+function mod(m){
+ $('#app').innerHTML=`
+ <button class="btn mb-4" onclick="go('home')">← Dashboard</button>
+ <h1 class="mono text-2xl md:text-3xl font-bold text-white">${m.ic} ${m.t}</h1>
+ <section class="card p-5 mt-5"><h2 class="mono c mb-3">// Ringkasan materi</h2>
+  <ul class="space-y-3 leading-relaxed">${m.pts.map(x=>`<li class="flex gap-3"><span class="g mono">▸</span><span>${x}</span></li>`).join('')}</ul></section>
+ <section class="card p-5 mt-4" style="border-color:#06b6d455"><h2 class="mono c mb-2">// ${m.cs[0]}</h2><p class="leading-relaxed">${m.cs[1]}</p></section>
+ ${m.id==='phish'||m.id==='intro'?`<section class="card p-5 mt-4"><h2 class="mono g mb-1">// Mini Lab terkait</h2><p class="text-sm text-zinc-400 mb-3">${m.id==='intro'?'Uji kekuatan password dengan simulasi real-time.':'Analisis URL mencurigakan dengan detektor heuristik.'}</p><button class="btn" onclick="go('labs')">Buka lab →</button></section>`:''}
+ <section class="card p-5 mt-4"><h2 class="mono g mb-2">// Kuis mini</h2><div id="quiz"></div></section>`;
+ quiz(m,0,0);
+}
+function quiz(m,i,score){
+ const el=$('#quiz');
+ if(i>=m.q.length){
+  if(P[m.id]==null||score>P[m.id])P[m.id]=score;save();
+  const msg=score===3?'Sempurna! Kamu menguasai modul ini.':score>=2?'Bagus! Ulangi materi untuk skor penuh.':'Tidak apa-apa, baca ringkasan lagi lalu coba ulang.';
+  el.innerHTML=`<p class="mono text-3xl font-bold ${score>=2?'g':'text-amber-400'}">${score}/${m.q.length}</p><p class="mt-2">${msg}</p>
+  <div class="mt-4 flex gap-2 flex-wrap"><button class="btn" onclick="quiz(MODS.find(x=>x.id==='${m.id}'),0,0)">Ulangi kuis</button><button class="btn fill" onclick="go('home')">Kembali ke Dashboard</button></div>`;return;
+ }
+ const [q,o,a,e]=m.q[i];
+ el.innerHTML=`<p class="mono text-xs text-zinc-500">Pertanyaan ${i+1} / ${m.q.length}</p><p class="mt-1 font-semibold text-white">${q}</p>
+ <div>${o.map((t,k)=>`<button class="opt" data-k="${k}">${t}</button>`).join('')}</div><div id="fb" class="mt-3"></div>`;
+ el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+  const k=+b.dataset.k,right=k===a;
+  el.querySelectorAll('.opt').forEach(x=>{x.disabled=true;x.style.cursor='default';if(+x.dataset.k===a)x.classList.add('ok')});
+  if(!right)b.classList.add('no');
+  $('#fb').innerHTML=`<p class="${right?'g':'text-red-400'} mono font-bold">${right?'✔ Benar!':'✘ Kurang tepat.'}</p><p class="text-sm text-zinc-300 mt-1">${e}</p>
+  <button class="btn fill mt-3" id="nx">${i+1<m.q.length?'Lanjut':'Lihat skor'}</button>`;
+  $('#nx').onclick=()=>quiz(m,i+1,score+(right?1:0));
+ });
+}
+function labs(){
+ $('#app').innerHTML=`
+ <h1 class="mono text-2xl md:text-3xl font-bold text-white">🧪 Mini Lab</h1>
+ <p class="text-zinc-400 mt-1">Semua analisis berjalan di browser kamu. Tidak ada data yang dikirim.</p>
+ <section class="card p-5 mt-5"><h2 class="mono g mb-3">// Lab 1: Password Strength Checker</h2>
+  <input id="pw" class="in" type="text" autocomplete="off" placeholder="Ketik password uji coba (jangan pakai password asli)" oninput="pw(this.value)">
+  <div id="pwo" class="mt-4"></div></section>
+ <section class="card p-5 mt-4"><h2 class="mono c mb-3">// Lab 2: Phishing URL Detector</h2>
+  <input id="phi" class="in" type="text" autocomplete="off" placeholder="contoh: http://login-bca-verifikasi.xyz/akun" oninput="ph()">
+  <div class="flex flex-wrap gap-2 mt-3 text-xs mono"><span class="text-zinc-500 self-center">Coba:</span>
+  ${['https://www.google.com','http://paypa1-secure-login.xyz/verify','http://192.168.4.7/bank/update','https://tokopedia.com'].map(u=>`<button class="btn" style="padding:.25rem .6rem" onclick="$('#phi').value='${u}';ph()">${u.replace(/^https?:\/\//,'').slice(0,22)}</button>`).join('')}</div>
+  <div id="pho" class="mt-4"></div></section>`;
+ pw('');ph();
+}
+function fmt(s){
+ if(s<1)return 'kurang dari 1 detik';
+ const u=[['tahun',31536000],['hari',86400],['jam',3600],['menit',60],['detik',1]];
+ if(s>=31536000*1e9)return 'miliaran tahun lebih';
+ for(const [n,v] of u)if(s>=v)return Math.floor(s/v).toLocaleString('id-ID')+' '+n;
+}
+function pw(v){
+ const o=$('#pwo');
+ if(!v){o.innerHTML='<p class="text-zinc-500 mono text-sm">Menunggu input<span class="blink">_</span></p>';return}
+ let pool=0;const tips=[];
+ if(/[a-z]/.test(v))pool+=26;if(/[A-Z]/.test(v))pool+=26;if(/\d/.test(v))pool+=10;if(/[^a-zA-Z0-9]/.test(v))pool+=32;
+ let bits=v.length*Math.log2(pool);
+ const common=['password','123456','qwerty','admin','letmein','iloveyou','welcome','abc123','indonesia','sayang','12345678'];
+ if(common.some(c=>v.toLowerCase().includes(c))){bits=Math.min(bits,20);tips.push('Mengandung kata umum yang ada di daftar serangan kamus.')}
+ if(/(.)\1{2,}/.test(v)){bits-=8;tips.push('Hindari karakter berulang seperti aaa atau 111.')}
+ if(/(012|123|234|345|456|567|678|789|abc|bcd|cde|qwe|wer|ert)/i.test(v)){bits-=8;tips.push('Hindari urutan mudah ditebak seperti 123, abc, qwe.')}
+ if(v.length<12)tips.push('Gunakan minimal 12 karakter. Passphrase panjang lebih baik.');
+ if(!/[a-z]/.test(v)||!/[A-Z]/.test(v))tips.push('Campurkan huruf besar dan kecil.');
+ if(!/\d/.test(v))tips.push('Tambahkan angka.');
+ if(!/[^a-zA-Z0-9]/.test(v))tips.push('Tambahkan simbol (!@#$%).');
+ bits=Math.max(bits,0);
+ const secs=Math.pow(2,bits)/2/1e10;
+ const L=bits<28?['Sangat lemah','#ef4444',15]:bits<40?['Lemah','#f97316',35]:bits<60?['Sedang','#eab308',60]:bits<80?['Kuat','#10b981',85]:['Sangat kuat','#06b6d4',100];
+ o.innerHTML=`<div class="flex justify-between mono text-sm mb-1"><span style="color:${L[1]}">${L[0]}</span><span class="text-zinc-400">~${Math.round(bits)} bit entropi</span></div>
+ <div class="h-3 rounded bg-zinc-900 border border-zinc-800 overflow-hidden"><div class="h-full" style="width:${L[2]}%;background:${L[1]};transition:width .3s"></div></div>
+ <p class="text-sm mt-3">Perkiraan waktu dibobol (10 miliar tebakan/detik): <b class="mono" style="color:${L[1]}">${fmt(secs)}</b></p>
+ ${tips.length?`<ul class="mt-3 text-sm space-y-1">${tips.map(t=>`<li><span class="c mono">!</span> ${t}</li>`).join('')}</ul>`:'<p class="g mt-3 text-sm mono">✔ Tidak ada saran. Pastikan password ini unik untuk satu akun saja.</p>'}`;
+}
+function ph(){
+ const o=$('#pho'),raw=$('#phi').value.trim();
+ if(!raw){o.innerHTML='<p class="text-zinc-500 mono text-sm">Masukkan URL untuk dianalisis<span class="blink">_</span></p>';return}
+ const hasScheme=/^[a-z]+:\/\//i.test(raw);let U;
+ try{U=new URL(hasScheme?raw:'http://'+raw)}catch(e){o.innerHTML='<p class="text-amber-400 mono text-sm">Format URL tidak valid.</p>';return}
+ const h=U.hostname.toLowerCase(),f=[];let s=0;
+ const add=(p,t)=>{s+=p;f.push([p,t])};
+ if(/^\d{1,3}(\.\d{1,3}){3}$/.test(h))add(40,'Memakai alamat IP, bukan nama domain.');
+ if(hasScheme&&U.protocol==='http:')add(15,'Tidak memakai HTTPS (koneksi tidak terenkripsi).');
+ if(raw.includes('@'))add(30,'Ada karakter "@" yang bisa menyembunyikan tujuan asli.');
+ if(h.startsWith('xn--')||h.includes('.xn--'))add(30,'Domain Punycode, kemungkinan karakter tiruan.');
+ if(h.split('.').length>4)add(20,'Terlalu banyak subdomain.');
+ if((h.match(/-/g)||[]).length>=2)add(15,'Banyak tanda hubung pada domain.');
+ if(/\.(xyz|top|tk|click|zip|gq|ml|cf|icu)$/.test(h))add(20,'Memakai TLD yang sering disalahgunakan.');
+ if(/(^|\.)(bit\.ly|tinyurl\.com|t\.co|is\.gd|cutt\.ly)$/.test(h))add(20,'Link pendek menyembunyikan tujuan asli.');
+ const kw=['login','verify','verifikasi','secure','update','account','akun','bank','confirm','password','otp','wallet','hadiah','gratis'];
+ const hit=kw.filter(k=>(h+U.pathname).toLowerCase().includes(k));
+ if(hit.length)add(Math.min(30,10*hit.length),'Kata pancingan: '+hit.join(', ')+'.');
+ const nh=h.replace(/0/g,'o').replace(/1/g,'l').replace(/3/g,'e').replace(/5/g,'s').replace(/rn/g,'m');
+ const br=['google','paypal','facebook','instagram','bca','mandiri','bni','tokopedia','shopee','gojek','microsoft','apple','netflix'];
+ for(const b of br){
+  if(h.includes(b)||nh.includes(b)){
+   const ok=[b+'.com',b+'.co.id',b+'.id'].some(d=>h===d||h.endsWith('.'+d));
+   if(!ok){add(40,'Memakai nama "'+b+'" tetapi bukan domain resminya.');break}
+  }
+ }
+ if(raw.length>75)add(10,'URL sangat panjang.');
+ s=Math.min(s,100);
+ const V=s>=60?['BERBAHAYA – kemungkinan phishing','#ef4444']:s>=25?['MENCURIGAKAN – jangan klik','#f97316']:['TAMPAK AMAN – tetap waspada','#10b981'];
+ o.innerHTML=`<p class="mono text-sm break-all text-zinc-500">Host: <span class="c">${esc(h)}</span></p>
+ <p class="mono font-bold mt-1" style="color:${V[1]}">${V[0]}</p>
+ <div class="h-3 rounded bg-zinc-900 border border-zinc-800 overflow-hidden mt-2"><div class="h-full" style="width:${Math.max(s,4)}%;background:${V[1]};transition:width .3s"></div></div>
+ <p class="text-xs text-zinc-500 mt-1 mono">Skor risiko: ${s}/100</p>
+ ${f.length?`<ul class="mt-3 text-sm space-y-1">${f.map(x=>`<li><span class="mono" style="color:#f97316">+${x[0]}</span> ${x[1]}</li>`).join('')}</ul>`:'<p class="text-sm mt-3">Tidak ada pola mencurigakan terdeteksi.</p>'}
+ <p class="text-xs text-zinc-500 mt-3">Catatan: ini heuristik sederhana untuk belajar, bukan jaminan keamanan.</p>`;
+}
+go('home');
+</script>
+</body>
+</html>
